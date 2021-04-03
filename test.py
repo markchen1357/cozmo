@@ -12,7 +12,7 @@ pictures = ['one', 'two', 'three']
 pics = {}
 for p in pictures: 
     image = Image.open('./images/{}.jpg'.format(p))
-    image = Image.resize(oled.dimensions())
+    image = image.resize(oled.dimensions())
     pics[p] = oled.convert_image_to_screen_data(image)
     
 
@@ -22,4 +22,4 @@ def program(robot: robot.Robot):
     robot.display_oled_face_image(pics['one'], 500, False)
 
 
-cozmo.run_program(cozmo_program)
+cozmo.run_program(program)
