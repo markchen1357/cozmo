@@ -95,7 +95,6 @@ def program(condition, robot):
 
 def main():
    
-
     cozmo.run_program(program)
 
 
