@@ -8,119 +8,117 @@ try:
 except:
     print("Need to install Python module Pillow. Try using pip for easy installation.")
 
-class RPS:
+PICTURES = ['one', 'two', 'three', 'rock', 'paper', 'scissors']
 
-    def __init__(self):
-        self.robot = robot.Robot()
+def get_pictures():
+    pics = {}
+    for p in PICTURES: 
+        image = Image.open('./images/{}.jpg'.format(p))
+        image = image.resize(oled.dimensions())
+        pics[p] = oled.convert_image_to_screen_data(image)
+    return pics
 
-    def convert_pictures(self, picture):
-
-    def convert_pictures(self, robot):
-        pictures = ['one', 'two', 'three', 'rock', 'paper', 'scissors']
-        pics = {}
-        for p in pictures: 
-            image = Image.open('./images/{}.png'.format(p))
-            image = Image.resize(oled.dimensions(), Image.NEAREST)
-            pics[p] = oled.convert_image_to_screen_data(image)
-        self.dict = pics
-    def disp_count_down(self, robot):
-        print("3, 2, 1, shoot!")
-        # TODO: show count down
-        robot.display_oled_face_image(self.three, 500, False)
-        robot.display_oled_face_image(self.two, 500, False)
-        robot.display_oled_face_image(self.one, 500, False)
+def disp_count_down(robot):
+    print("3, 2, 1, shoot!")
+    # TODO: show count down
+    robot.display_oled_face_image(self.three, 1000, False)
+    robot.display_oled_face_image(self.two, 1000, False)
+    robot.display_oled_face_image(self.one, 1000, False)
 
 
-    def disp_throw(self, robot, throw):        
-        if throw == 0:
-            print("Robot throws rock")
-            # TODO: show rock 
-            robot.display_oled_face_image(self.rock, 500, False)
-        elif throw == 1:
-            print("Robot throws paper")
-            # TODO: show paper
-            robot.display_oled_face_image(self.paper, 500, False)
-        else:
-            print("Robot throws scissor")
-            # TODO: show scissor
-            robot.display_oled_face_image(self.scissors, 500, False)
+def disp_throw(robot, throw):        
+    if throw == 0:
+        print("Robot throws rock")
+        # TODO: show rock 
+        robot.display_oled_face_image(self.rock, 1000, False)
+    elif throw == 1:
+        print("Robot throws paper")
+        # TODO: show paper
+        robot.display_oled_face_image(self.paper, 1000, False)
+    else:
+        print("Robot throws scissor")
+        # TODO: show scissor
+        robot.display_oled_face_image(self.scissors, 100, False)
 
-    def disp_result(self, robot, rob_res, hum_res):
-        if rob_res == (hum_res + 1) % 3:
-            # robot win
-            robot.say_text("I win", num_retries = 2)
-        elif human == robot:
-            # tie
-            robot.say_text("It is a tie", num_retries = 2)
-        else:
-            # human win
-            robot.say_text("You win", num_retries = 2)
+def disp_result(robot, rob_res, hum_res):
+    if rob_res == (hum_res + 1) % 3:
+        # robot win
+        robot.say_text("Yes, I win", num_retries = 2)
+    elif human == robot:
+        # tie
+        robot.say_text("We have tied", num_retries = 2)
+    else:
+        # human win
+        robot.say_text("Aw, you win", num_retries = 2)
 
-   
 
-    def program(self, robot):
-        # rock = 0, paper = 1, scissor = 2
-    gesture_dict = {'r': 0, 'p': 1, 's': 2}
 
-    # control = 0, verbal cheat = 1, action cheat = 2
-    condition = 1
+def program(robot):
+    # rock = 0, paper = 1, scissor = 2
+gesture_dict = {'r': 0, 'p': 1, 's': 2}
 
-    # cheat rounds
-    cheat_rounds = np.array([4, 8, 15])
+# control = 0, verbal cheat = 1, action cheat = 2
+condition = 1
 
-    # total number of rounds
-    n_round = 20
+# cheat rounds
+cheat_rounds = np.array([4, 8, 15])
 
-    print("Game starts!")
+# total number of rounds
+n_round = 20
 
-    # set seed to keep consistency for all participants
-    np.random.seed(0)
-    # sequence longer than 20 in case of extended interactions
-    robot_throws = np.random.randint(3, size=50) 
+#pictures
+pics = get_pictures()
 
-    cur = 1
-    while (cur <= n_round):
-        is_cheat_round = cur in cheat_rounds
-        cur_throw = robot_throws[cur - 1]
+print("Game starts!")
 
-        if (is_cheat_round):
-            print("---- Round %d (cheat round) ----" %(cur))
-        else:
-            print("---- Round %d ----" %(cur))
-        
-        disp_count_down()
-        disp_throw(cur_throw)
+# set seed to keep consistency for all participants
+np.random.seed(0)
+# sequence longer than 20 in case of extended interactions
+robot_throws = np.random.randint(3, size=50) 
 
-        human_throw_input = input("Enter human gesture (r / p / s): ")
-        while human_throw_input not in ['r', 'p', 's']:
-            print("Invalid input! Try again!")
-            human_throw_input = input("Enter human gesture (r / p / s): ")
-        human_throw = gesture_dict[human_throw_input]
+cur = 1
+while (cur <= n_round):
+    is_cheat_round = cur in cheat_rounds
+    cur_throw = robot_throws[cur - 1]
 
-        # robot win = 0, human win = 1, tie = 2
-        result = get_result(cur_throw, human_throw)
-
-        if condition > 0 and is_cheat_round:
-            if result == 0:
-                # robot wins fairly. all rounds pushed back
-                n_round += 1
-                cheat_rounds += 1
-            elif condition == 1:
-                # verbal cheat
-                result = 0
-            elif condition == 2:
-                # action cheat
-                cur_throw = (human_throw + 1) % 3
-                disp_throw(cur_throw)
-                result = 0
-
-        time.sleep(2) # hold gesture image for a while
-        disp_result(result)
-        time.sleep(2) # hold result image for a while
-        
-        cur += 1
+    if (is_cheat_round):
+        print("---- Round %d (cheat round) ----" %(cur))
+    else:
+        print("---- Round %d ----" %(cur))
     
-    print("Game ends!")
+    disp_count_down()
+    disp_throw(cur_throw)
+
+    human_throw_input = input("Enter human gesture (r / p / s): ")
+    while human_throw_input not in ['r', 'p', 's']:
+        print("Invalid input! Try again!")
+        human_throw_input = input("Enter human gesture (r / p / s): ")
+    human_throw = gesture_dict[human_throw_input]
+
+    # robot win = 0, human win = 1, tie = 2
+    result = get_result(cur_throw, human_throw)
+
+    if condition > 0 and is_cheat_round:
+        if result == 0:
+            # robot wins fairly. all rounds pushed back
+            n_round += 1
+            cheat_rounds += 1
+        elif condition == 1:
+            # verbal cheat
+            result = 0
+        elif condition == 2:
+            # action cheat
+            cur_throw = (human_throw + 1) % 3
+            disp_throw(cur_throw)
+            result = 0
+
+    time.sleep(2) # hold gesture image for a while
+    disp_result(result)
+    time.sleep(2) # hold result image for a while
+    
+    cur += 1
+
+print("Game ends!")
 
 def main():
     # rock = 0, paper = 1, scissor = 2
