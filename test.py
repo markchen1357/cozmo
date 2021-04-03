@@ -3,12 +3,13 @@ import time
 from cozmo import robot
 from cozmo import oled_face as oled
 import cozmo
+
 try:
     from PIL import Image
 except:
     print("Need to install Python module Pillow. Try using pip for easy installation.")
 
-pictures = ['one', 'two', 'three']
+pictures = ['one', 'two', 'three', 'rock', 'paper', 'scissors']
 pics = {}
 for p in pictures: 
     image = Image.open('./images/{}.jpg'.format(p))
@@ -17,9 +18,28 @@ for p in pictures:
     
 
 def program(robot: robot.Robot):
-    robot.display_oled_face_image(pics['three'], 500, False)
-    robot.display_oled_face_image(pics['two'], 500, False)
-    robot.display_oled_face_image(pics['one'], 500, False)
+    
+    if robot.lift_height.distance_mm > 45:
+        with robot.perform_off_charger():
+            robot.set_lift_height(0.0).wait_for_completed()
 
+    for p in pics.values():
+        robot.display_oled_face_image(p, 1000, False)
+        time.sleep(1.0)
 
+    for i in range(3):
+        throw_input = input("Enter gesture (r / p / s): ")
+        while throw_input not in ['r', 'p', 's']:
+            print("Invalid input! Try again!")
+            human_throw_input = input("Enter gesture (r / p / s): ")
+
+        if human_throw_input == 'r':
+            robot.display_oled_face_image(pics['rock'], 1000, False)
+    
+        elif human_throw_input == 'p':
+            robot.display_oled_face_image(pics['paper'], 1000, False)
+         
+        else:
+            robot.display_oled_face_image(pics['scissors'], 1000, False)
+           
 cozmo.run_program(program)
