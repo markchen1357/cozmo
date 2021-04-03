@@ -16,6 +16,7 @@ PICTURES = ['one', 'two', 'three', 'rock', 'paper', 'scissors']
 SEED = 0
 FILE = 'images'
 LOG = []
+ROBOT_VOICE = False
 
 def get_pictures():
     pics = {}
@@ -32,9 +33,9 @@ def disp_count_down(robot, pics):
     say = ['rock', 'paper', 'scissors']
 
     for i in range(3):
-        robot.say_text(say[i])
+        robot.say_text(say[i], use_cozmo_voice = ROBOT_VOICE)
         robot.display_oled_face_image(pics[count[i]], 1000, True).wait_for_completed()
-    robot.say_text('shoot') 
+    robot.say_text('shoot', use_cozmo_voice = ROBOT_VOICE) 
 
 def disp_throw(robot, pics, throw, current): 
     throw_dict = ['rock', 'paper', 'scissors']
@@ -58,15 +59,11 @@ def get_result(rob_res, hum_res):
         return 1 # human win
 
 def say_result(robot, result):
-    if result == 0:
-        # robot win
-        robot.say_text('Yes, I win').wait_for_completed()
-    elif result == 1:
-        # human win
-        robot.say_text('Aw, you win').wait_for_completed()
-    else:
-        # tied
-        robot.say_text('We have tied').wait_for_completed()
+    response_list = ['Yes, I win', 'Aw, you win', 'We have tied']
+    response = response_list[result]
+  
+    robot.say_text(response, use_cozmo_voice = ROBOT_VOICE, in_parallel = True).wait_for_completed()
+  
 
     
 def program(condition, robot):
@@ -86,7 +83,7 @@ def program(condition, robot):
     pics = get_pictures()
 
     print("Game starts!")
-    robot.say_text('Let us start the game').wait_for_completed()
+    robot.say_text('Let us start the game', use_cozmo_voice = ROBOT_VOICE).wait_for_completed()
     time.sleep(2.0)
 
     # set seed to keep consistency for all participants
@@ -96,6 +93,7 @@ def program(condition, robot):
 
     cur = 0
     while (cur < n_round):
+        second_display = None
         is_cheat_round = (cur+1) in cheat_rounds
         cur_throw = robot_throws[cur]
 
@@ -132,23 +130,37 @@ def program(condition, robot):
                 result = 0
 
         say_result(robot, result)
-        second_display.abort()
+        if second_display:
+            second_display.abort()
+        cur += 1
         time.sleep(2) 
         
-        cur += 1
-
     print("Game ends!")
+    robot.say_text('The game is finished', use_cozmo_voice = ROBOT_VOICE).wait_for_completed()
 
 def main():
-   
 
-    if len(sys.argv) < 2:
+    DEBUG = False
+    opts = [opt for opt in sys.argv[1:] if opt.startswith("-")]
+    args = [arg for arg in sys.argv[1:] if not arg.startswith("-")]
+
+    if len(opts) > 0:
+        if "-d" in opts:
+            DEBUG = True
+        else:
+            raise SystemExit(f"Usage: {sys.argv[0]} (-d) <arguments>...")
+
+    if len(args) == 0:
         print('Please specify condition as either [control/verbal-cheat/action-cheat]')
         sys.exit(0)
 
-    if sys.argv[1] == 'control':
+    if len(args) > 1:
+        print('Too many arguments')
+        sys.exit(0)
+
+    if args[0] == 'control':
         CONDITION = 0
-    elif sys.argv[1] == 'verbal-cheat':
+    elif args[0] == 'verbal-cheat':
         CONDITION = 1
     elif sys.argv[1] == 'action-cheat':
         CONDITION = 2
@@ -156,17 +168,17 @@ def main():
         print('Invalid condition. Please give condition as either [control/verbal-cheat/action-cheat]')
         sys.exit(0)
 
-    NAME = input('Enter the partcipants name as [LAST-FIRST]: ')
-    while ' ' in NAME:
-        print('No whitespace in name')
+    if not DEBUG:
         NAME = input('Enter the partcipants name as [LAST-FIRST]: ')
+        while ' ' in NAME:
+            print('No whitespace in name')
+            NAME = input('Enter the partcipants name as [LAST-FIRST]: ')
 
     cozmo_program = partial(program, CONDITION) 
     cozmo.run_program(cozmo_program)
-    np.savetxt('./participants/{}-{}.csv'.format(NAME, sys.argv[1]), LOG, delimiter = ', ', fmt = '% s')
 
-
-
+    if not DEBUG:
+        np.savetxt('./participants/{}-{}.csv'.format(NAME, sys.argv[1]), LOG, delimiter = ', ', fmt = '% s')
 
 
 if __name__ == '__main__':
