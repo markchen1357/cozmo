@@ -16,7 +16,7 @@ PICTURES = ['one', 'two', 'three', 'rock', 'paper', 'scissors']
 SEED = 0
 FILE = 'images'
 LOG = []
-ROBOT_VOICE = False
+ROBOT_VOICE = True
 
 def get_pictures():
     pics = {}
@@ -33,9 +33,10 @@ def disp_count_down(robot, pics):
     say = ['rock', 'paper', 'scissors']
 
     for i in range(3):
-        robot.say_text(say[i], use_cozmo_voice = ROBOT_VOICE)
-        robot.display_oled_face_image(pics[count[i]], 1000, True).wait_for_completed()
-    robot.say_text('shoot', use_cozmo_voice = ROBOT_VOICE) 
+        robot.display_oled_face_image(pics[count[i]], 100, True).wait_for_completed()
+        robot.say_text(say[i], use_cozmo_voice = ROBOT_VOICE, duration_scalar = 0.3, in_parallel = True).wait_for_completed() 
+     
+    robot.say_text('shoot', use_cozmo_voice = ROBOT_VOICE, duration_scalar = 0.2).wait_for_completed() 
 
 def disp_throw(robot, pics, throw, current): 
     throw_dict = ['rock', 'paper', 'scissors']
@@ -47,7 +48,7 @@ def disp_throw(robot, pics, throw, current):
 
     print('Robot throws {}'.format(symbol))
 
-    return robot.display_oled_face_image(pics['rock'], 50000, True)
+    return robot.display_oled_face_image(pics[symbol], 50000, True)
 
 
 def get_result(rob_res, hum_res):
@@ -62,7 +63,7 @@ def say_result(robot, result):
     response_list = ['Yes, I win', 'Aw, you win', 'We have tied']
     response = response_list[result]
   
-    robot.say_text(response, use_cozmo_voice = ROBOT_VOICE, in_parallel = True).wait_for_completed()
+    robot.say_text(response, use_cozmo_voice = ROBOT_VOICE, duration_scalar = 0.6, in_parallel = True).wait_for_completed()
   
 
     
@@ -83,7 +84,7 @@ def program(condition, robot):
     pics = get_pictures()
 
     print("Game starts!")
-    robot.say_text('Let us start the game', use_cozmo_voice = ROBOT_VOICE).wait_for_completed()
+    robot.say_text('Let\'s play rock paper scissors', use_cozmo_voice = ROBOT_VOICE, duration_scalar = 0.6).wait_for_completed()
     time.sleep(2.0)
 
     # set seed to keep consistency for all participants
@@ -101,7 +102,8 @@ def program(condition, robot):
             print("---- Round %d (cheat round) ----" %(cur+1))
         else:
             print("---- Round %d ----" %(cur+1))
-        
+
+        robot.say_text('Round %d' %(cur+1), use_cozmo_voice = ROBOT_VOICE, duration_scalar = 0.6).wait_for_completed()
         disp_count_down(robot, pics)
         first_display = disp_throw(robot, pics, cur_throw, None)
 
@@ -121,7 +123,7 @@ def program(condition, robot):
                 n_round += 1
                 cheat_rounds += 1
             elif condition == 1:
-                # verbal cheat
+                # verbal cheat 
                 result = 0
             elif condition == 2:
                 # action cheat
@@ -130,13 +132,16 @@ def program(condition, robot):
                 result = 0
 
         say_result(robot, result)
-        if second_display:
+        
+        if not first_display.is_completed():
+            first_display.abort()
+        if second_display and not second_display.is_completed():
             second_display.abort()
         cur += 1
         time.sleep(2) 
         
     print("Game ends!")
-    robot.say_text('The game is finished', use_cozmo_voice = ROBOT_VOICE).wait_for_completed()
+    robot.say_text('The game is finished', use_cozmo_voice = ROBOT_VOICE, duration_scalar = 0.6).wait_for_completed()
 
 def main():
 
@@ -162,7 +167,7 @@ def main():
         CONDITION = 0
     elif args[0] == 'verbal-cheat':
         CONDITION = 1
-    elif sys.argv[1] == 'action-cheat':
+    elif args[0] == 'action-cheat':
         CONDITION = 2
     else:
         print('Invalid condition. Please give condition as either [control/verbal-cheat/action-cheat]')

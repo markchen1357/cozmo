@@ -15,6 +15,7 @@ except:
 PICTURES = ['one', 'two', 'three', 'rock', 'paper', 'scissors']
 SEED = 0
 FILE = 'images'
+ROBOT_VOICE = False
 
 
 def get_pictures():
@@ -66,7 +67,7 @@ def say_result(robot, result):
 
 
     
-def program(condition, robot):
+def program(robot):
 
     # rock = 0, paper = 1, scissor = 2
     gesture_dict = {'r': 0, 'p': 1, 's': 2}

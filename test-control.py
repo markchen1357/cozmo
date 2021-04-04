@@ -12,6 +12,7 @@ try:
 except:
     print("Need to install Python module Pillow. Try using pip for easy installation.")
 
+ROBOT_VOICE = False
 PICTURES = ['one', 'two', 'three', 'rock', 'paper', 'scissors']
 SEED = 0
 FILE = 'images'
@@ -66,7 +67,7 @@ def say_result(robot, result):
 
 
     
-def program(condition, robot):
+def program(robot):
 
     # rock = 0, paper = 1, scissor = 2
     gesture_dict = {'r': 0, 'p': 1, 's': 2}
