@@ -14,9 +14,9 @@ except:
 
 PICTURES = ['one', 'two', 'three', 'rock', 'paper', 'scissors']
 SEED = 0
-FILE = 'images'
+FILE = 'raw'
 LOG = []
-ROBOT_VOICE = True
+ROBOT_VOICE = False
 
 def get_pictures():
     pics = {}
@@ -34,9 +34,9 @@ def disp_count_down(robot, pics):
 
     for i in range(3):
         robot.display_oled_face_image(pics[count[i]], 100, True).wait_for_completed()
-        robot.say_text(say[i], use_cozmo_voice = ROBOT_VOICE, duration_scalar = 0.3, in_parallel = True).wait_for_completed() 
+        robot.say_text(say[i], use_cozmo_voice = ROBOT_VOICE, duration_scalar = 0.2, in_parallel = True).wait_for_completed() 
      
-    robot.say_text('shoot', use_cozmo_voice = ROBOT_VOICE, duration_scalar = 0.2).wait_for_completed() 
+    robot.say_text('shoot', use_cozmo_voice = ROBOT_VOICE, duration_scalar = 0.1).wait_for_completed() 
 
 def disp_throw(robot, pics, throw, current): 
     throw_dict = ['rock', 'paper', 'scissors']
@@ -63,7 +63,7 @@ def say_result(robot, result):
     response_list = ['Yes, I win', 'Aw, you win', 'We have tied']
     response = response_list[result]
   
-    robot.say_text(response, use_cozmo_voice = ROBOT_VOICE, duration_scalar = 0.6, in_parallel = True).wait_for_completed()
+    robot.say_text(response, use_cozmo_voice = ROBOT_VOICE, duration_scalar = 0.3, in_parallel = True).wait_for_completed()
   
 
     
@@ -84,7 +84,7 @@ def program(condition, robot):
     pics = get_pictures()
 
     print("Game starts!")
-    robot.say_text('Let\'s play rock paper scissors', use_cozmo_voice = ROBOT_VOICE, duration_scalar = 0.6).wait_for_completed()
+    robot.say_text('Let\'s play rock paper scissors', use_cozmo_voice = ROBOT_VOICE, duration_scalar = 0.5).wait_for_completed()
     time.sleep(2.0)
 
     # set seed to keep consistency for all participants
@@ -103,7 +103,7 @@ def program(condition, robot):
         else:
             print("---- Round %d ----" %(cur+1))
 
-        robot.say_text('Round %d' %(cur+1), use_cozmo_voice = ROBOT_VOICE, duration_scalar = 0.6).wait_for_completed()
+        robot.say_text('Round %d' %(cur+1), use_cozmo_voice = ROBOT_VOICE, duration_scalar = 0.3).wait_for_completed()
         disp_count_down(robot, pics)
         first_display = disp_throw(robot, pics, cur_throw, None)
 
@@ -133,9 +133,9 @@ def program(condition, robot):
 
         say_result(robot, result)
         
-        if not first_display.is_completed():
+        if not first_display.is_completed:
             first_display.abort()
-        if second_display and not second_display.is_completed():
+        if second_display and not second_display.is_completed:
             second_display.abort()
         cur += 1
         time.sleep(2) 
