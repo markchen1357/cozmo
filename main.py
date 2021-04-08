@@ -138,7 +138,7 @@ def program(condition, robot):
         if second_display and not second_display.is_completed:
             second_display.abort()
         cur += 1
-        time.sleep(2) 
+        time.sleep(1) 
         
     print("Game ends!")
     robot.say_text('The game is finished', use_cozmo_voice = ROBOT_VOICE, duration_scalar = 0.6).wait_for_completed()
